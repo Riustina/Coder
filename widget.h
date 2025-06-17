@@ -12,10 +12,10 @@ class Widget;
 }
 
 struct EncodingInfo {
-    QString utf8Hex;    // UTF-8 编码（十六进制）
-    QString utf16Hex;   // UTF-16 编码（十六进制）
-    QString gbkHex;     // GBK 编码（十六进制）
-    QString color;      // 背景颜色（样式表格式）
+    QString utf8Hex;     // UTF-8 编码（十六进制）
+    QString utf16Hex;    // UTF-16 编码（十六进制）
+    QString unicodeHex;  // Unicode 编码（十六进制）
+    QString color;       // 背景颜色（样式表格式）
 };
 
 class Widget : public QWidget
@@ -37,9 +37,9 @@ private:
 
     void clearContainerLayout(QHBoxLayout *layout); // 清除布局中的控件
     QString generateRandomColor();  // 生成随机背景颜色
-    QString charToUtf8Hex(QChar ch);   // 将字符转换为 UTF-8 编码（十六进制）
-    QString charToUtf16Hex(QChar ch);  // 将字符转换为 UTF-16 编码（十六进制）
-    QString charToGbkHex(QChar ch);    // 将字符转换为 GBK 编码（十六进制）
+    QString charToUtf8Hex(QChar ch);     // 将字符转换为 UTF-8 编码（十六进制）
+    QString charToUtf16Hex(QChar ch);    // 将字符转换为 UTF-16 编码（十六进制）
+    QString charToUnicodeHex(QChar ch);  // 将字符转换为 Unicode 编码（十六进制）
 };
 
 #endif // WIDGET_H

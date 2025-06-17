@@ -4,7 +4,6 @@
 #include <QVBoxLayout>
 #include <QLabel>
 #include <QDebug>
-#include <QTextCodec>
 #include <QScrollArea>
 #include <cstdlib>
 #include <ctime>
@@ -83,7 +82,7 @@ void Widget::onConvertButtonClicked()
         EncodingInfo info;
         info.utf8Hex = charToUtf8Hex(ch);
         info.utf16Hex = charToUtf16Hex(ch);
-        info.gbkHex = charToGbkHex(ch);
+        info.unicodeHex = charToUnicodeHex(ch);
         info.color = generateRandomColor();
         encodingMap[ch] = info;
 
@@ -100,11 +99,11 @@ void Widget::onConvertButtonClicked()
         encodingLabel->setAlignment(Qt::AlignCenter);
         encodingLabel->setFixedSize(80, 35);
         encodingLabel->setWordWrap(true);
-        encodingLabel->setToolTip(QString("字符: %1\nUTF-8: %2\nUTF-16: %3\nGBK: %4")
+        encodingLabel->setToolTip(QString("字符: %1\nUTF-8: %2\nUTF-16: %3\nUnicode: U+%4")
                                       .arg(ch)
                                       .arg(info.utf8Hex)
                                       .arg(info.utf16Hex)
-                                      .arg(info.gbkHex));
+                                      .arg(info.unicodeHex));
         encodingLayout->addWidget(encodingLabel);
     }
 
@@ -157,23 +156,8 @@ QString Widget::charToUtf16Hex(QChar ch)
     return QString("%1").arg(utf16, 4, 16, QChar('0')).toUpper();
 }
 
-QString Widget::charToGbkHex(QChar ch)
+QString Widget::charToUnicodeHex(QChar ch)
 {
-    QTextCodec *gbkCodec = QTextCodec::codecForName("GBK");
-    if (!gbkCodec) {
-        return "N/A";
-    }
-
-    QByteArray gbkBytes = gbkCodec->fromUnicode(QString(ch));
-    if (gbkBytes.isEmpty()) {
-        return "N/A";
-    }
-
-    QString hex = gbkBytes.toHex().toUpper();
-    QString formatted;
-    for (int i = 0; i < hex.length(); i += 2) {
-        if (i > 0) formatted += " ";
-        formatted += hex.mid(i, 2);
-    }
-    return formatted;
+    uint32_t unicode = ch.unicode();
+    return QString("%1").arg(unicode, 4, 16, QChar('0')).toUpper();
 }

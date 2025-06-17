@@ -206,7 +206,7 @@
    <item>
     <widget class="QLabel" name="instructionLabel">
      <property name="text">
-      <string>说明：鼠标悬停在编码标签上可查看详细的编码信息（UTF-8、UTF-16、GBK）</string>
+      <string>说明：鼠标悬停在编码标签上可查看详细的编码信息（UTF-8、UTF-16、Unicode）</string>
      </property>
      <property name="font">
       <font>
