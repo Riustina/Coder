@@ -67,7 +67,7 @@ void Converter::onBackButtonClicked()
 
 void Converter::convertFile(const QString &inputPath, const QString &encoding)
 {
-    // 读取源文件（自动检测编码）
+    // 读取源文件
     QFile inputFile(inputPath);
     if (!inputFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
         QMessageBox::critical(this, "错误", QString("无法打开文件: %1").arg(inputPath));
@@ -75,6 +75,16 @@ void Converter::convertFile(const QString &inputPath, const QString &encoding)
     }
 
     QTextStream in(&inputFile);
+
+    // 根据目标编码设置源编码
+    if (encoding == "UTF-8") {
+        // 如果目标是UTF-8，假设源是GBK
+        in.setEncoding(QStringConverter::System); // Windows下通常是GBK
+    } else if (encoding == "GBK") {
+        // 如果目标是GBK，假设源是UTF-8
+        in.setEncoding(QStringConverter::Utf8);
+    }
+
     QString content = in.readAll();
     inputFile.close();
 
@@ -97,17 +107,9 @@ void Converter::convertFile(const QString &inputPath, const QString &encoding)
         out.setEncoding(QStringConverter::Utf8);
     }
     else if (encoding == "GBK") {
-// Windows下使用本地编码（通常是GBK），其他平台需要额外处理
-#ifdef Q_OS_WIN
-        out.setEncoding(QStringConverter::System);
-#else
-        // 非Windows系统需要iconv或其他方式支持GBK
-        QMessageBox::warning(this, "警告", "非Windows系统可能需要额外配置才能支持GBK编码");
-        out.setEncoding(QStringConverter::System); // 回退到系统编码
-#endif
+        out.setEncoding(QStringConverter::System); // Windows下通常是GBK
     }
 
-    // 直接写入QString，QTextStream会自动处理编码转换
     out << content;
     outputFile.close();
 
