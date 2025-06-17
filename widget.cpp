@@ -5,30 +5,33 @@
 #include <QLabel>
 #include <QDebug>
 #include <QScrollArea>
+#include <QGridLayout>
 #include <cstdlib>
 #include <ctime>
 
 Widget::Widget(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::Widget)
-    , originalLayout(nullptr)
-    , encodingLayout(nullptr)
+    , originalLayoutWidget(nullptr)
+    , encodingLayoutWidget(nullptr)
 {
     ui->setupUi(this);
 
     // 初始化随机数种子
     srand(time(nullptr));
 
-    // 为容器创建水平布局
-    originalLayout = new QHBoxLayout(ui->originalTextContainer);
-    originalLayout->setAlignment(Qt::AlignLeft);
-    originalLayout->setSpacing(2);
-    originalLayout->setContentsMargins(5, 5, 5, 5);
+    // 为容器创建网格布局，支持自动换行
+    originalLayoutWidget = ui->originalTextContainer;
+    QGridLayout *originalGridLayout = new QGridLayout(originalLayoutWidget);
+    originalGridLayout->setAlignment(Qt::AlignLeft | Qt::AlignTop);
+    originalGridLayout->setSpacing(3);
+    originalGridLayout->setContentsMargins(5, 5, 5, 5);
 
-    encodingLayout = new QHBoxLayout(ui->encodingTextContainer);
-    encodingLayout->setAlignment(Qt::AlignLeft);
-    encodingLayout->setSpacing(2);
-    encodingLayout->setContentsMargins(5, 5, 5, 5);
+    encodingLayoutWidget = ui->encodingTextContainer;
+    QGridLayout *encodingGridLayout = new QGridLayout(encodingLayoutWidget);
+    encodingGridLayout->setAlignment(Qt::AlignLeft | Qt::AlignTop);
+    encodingGridLayout->setSpacing(3);
+    encodingGridLayout->setContentsMargins(5, 5, 5, 5);
 
     // 连接按钮信号
     connect(ui->convertButton, &QPushButton::clicked, this, &Widget::onConvertButtonClicked);
@@ -40,8 +43,8 @@ Widget::Widget(QWidget *parent)
     // 连接清空按钮
     connect(ui->pushButton, &QPushButton::clicked, [this]() {
         ui->textEdit->clear();
-        clearContainerLayout(originalLayout);
-        clearContainerLayout(encodingLayout);
+        clearContainerLayout(originalLayoutWidget);
+        clearContainerLayout(encodingLayoutWidget);
         encodingMap.clear();
     });
 
@@ -71,8 +74,22 @@ void Widget::onConvertButtonClicked()
 
     // 清空之前的内容
     encodingMap.clear();
-    clearContainerLayout(originalLayout);
-    clearContainerLayout(encodingLayout);
+    clearContainerLayout(originalLayoutWidget);
+    clearContainerLayout(encodingLayoutWidget);
+
+    // 获取布局
+    QGridLayout *originalGridLayout = qobject_cast<QGridLayout*>(originalLayoutWidget->layout());
+    QGridLayout *encodingGridLayout = qobject_cast<QGridLayout*>(encodingLayoutWidget->layout());
+
+    // 计算每行能放多少个字符（基于容器宽度）
+    int containerWidth = originalLayoutWidget->width();
+    int itemWidth = 35; // 原文字符宽度
+    int encodingItemWidth = 90; // 编码值宽度
+    int spacing = 4;
+
+    // 估算每行字符数（考虑滚动条等）
+    int charsPerRow = std::max(1, (containerWidth - 20) / (itemWidth + spacing));
+    int encodingPerRow = std::max(1, (containerWidth - 20) / (encodingItemWidth + spacing));
 
     // 为每个字符生成 Label 和编码信息
     for (int i = 0; i < inputText.length(); ++i) {
@@ -86,40 +103,48 @@ void Widget::onConvertButtonClicked()
         info.color = generateRandomColor();
         encodingMap[ch] = info;
 
+        // 创建详细信息字符串
+        QString tooltipText = QString("字符: %1\nUTF-8: %2\nUTF-16: %3\nUnicode: U+%4")
+                                  .arg(ch)
+                                  .arg(info.utf8Hex)
+                                  .arg(info.utf16Hex)
+                                  .arg(info.unicodeHex);
+
         // 原文显示：创建 Label
         QLabel *originalLabel = new QLabel(QString(ch));
-        originalLabel->setStyleSheet(QString("background-color: %1; border: 1px solid #ccc; font-size: 14px; font-weight: bold;").arg(info.color));
+        originalLabel->setStyleSheet(QString("background-color: %1; border: 1px solid #ccc; font-size: 14px;").arg(info.color));
         originalLabel->setAlignment(Qt::AlignCenter);
         originalLabel->setFixedSize(35, 35);
-        originalLayout->addWidget(originalLabel);
+        originalLabel->setToolTip(tooltipText); // 添加工具提示
 
-        // 编码值显示：创建 Label（显示UTF-8编码）
+        // 计算网格位置
+        int originalRow = i / charsPerRow;
+        int originalCol = i % charsPerRow;
+        originalGridLayout->addWidget(originalLabel, originalRow, originalCol);
+
+        // 编码值显示：创建 Label
         QLabel *encodingLabel = new QLabel(info.utf8Hex);
-        encodingLabel->setStyleSheet(QString("background-color: %1; border: 1px solid #ccc; font-size: 10px; font-family: monospace;").arg(info.color));
+        encodingLabel->setStyleSheet(QString("background-color: %1; border: 1px solid #ccc; font-size: 14px; font-family: monospace;").arg(info.color));
         encodingLabel->setAlignment(Qt::AlignCenter);
-        encodingLabel->setFixedSize(80, 35);
+        encodingLabel->setFixedSize(90, 35);
         encodingLabel->setWordWrap(true);
-        encodingLabel->setToolTip(QString("字符: %1\nUTF-8: %2\nUTF-16: %3\nUnicode: U+%4")
-                                      .arg(ch)
-                                      .arg(info.utf8Hex)
-                                      .arg(info.utf16Hex)
-                                      .arg(info.unicodeHex));
-        encodingLayout->addWidget(encodingLabel);
-    }
+        encodingLabel->setToolTip(tooltipText); // 添加工具提示
 
-    // 添加弹性空间，使标签左对齐
-    originalLayout->addStretch();
-    encodingLayout->addStretch();
+        // 计算编码值的网格位置
+        int encodingRow = i / encodingPerRow;
+        int encodingCol = i % encodingPerRow;
+        encodingGridLayout->addWidget(encodingLabel, encodingRow, encodingCol);
+    }
 
     qDebug() << "转换完成，处理了" << inputText.length() << "个字符";
 }
 
-void Widget::clearContainerLayout(QHBoxLayout *layout)
+void Widget::clearContainerLayout(QWidget *container)
 {
-    if (!layout) return;
+    if (!container || !container->layout()) return;
 
     QLayoutItem *item;
-    while ((item = layout->takeAt(0)) != nullptr) {
+    while ((item = container->layout()->takeAt(0)) != nullptr) {
         if (item->widget()) {
             item->widget()->deleteLater();
         }

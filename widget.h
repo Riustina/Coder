@@ -32,10 +32,10 @@ private slots:
 private:
     Ui::Widget *ui;
     QHash<QChar, EncodingInfo> encodingMap; // 字符到编码信息的映射
-    QHBoxLayout *originalLayout;  // 原文显示的水平布局
-    QHBoxLayout *encodingLayout;  // 编码显示的水平布局
+    QWidget *originalLayoutWidget;  // 原文显示的布局容器
+    QWidget *encodingLayoutWidget;  // 编码显示的布局容器
 
-    void clearContainerLayout(QHBoxLayout *layout); // 清除布局中的控件
+    void clearContainerLayout(QWidget *container); // 清除容器中的控件
     QString generateRandomColor();  // 生成随机背景颜色
     QString charToUtf8Hex(QChar ch);     // 将字符转换为 UTF-8 编码（十六进制）
     QString charToUtf16Hex(QChar ch);    // 将字符转换为 UTF-16 编码（十六进制）
