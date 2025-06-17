@@ -6,6 +6,8 @@
 #include <QChar>
 #include <QString>
 #include <QHBoxLayout>
+#include "converter.h"
+#include "clickablelabel.h"
 
 namespace Ui {
 class Widget;
@@ -28,12 +30,14 @@ public:
 
 private slots:
     void onConvertButtonClicked(); // 按钮点击槽函数
+    void onLinkLabelClicked();     // 链接标签点击槽函数
 
 private:
     Ui::Widget *ui;
     QHash<QChar, EncodingInfo> encodingMap; // 字符到编码信息的映射
     QWidget *originalLayoutWidget;  // 原文显示的布局容器
     QWidget *encodingLayoutWidget;  // 编码显示的布局容器
+    Converter *converterWindow;     // Converter窗口指针
 
     void clearContainerLayout(QWidget *container); // 清除容器中的控件
     QString generateRandomColor();  // 生成随机背景颜色

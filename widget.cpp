@@ -8,12 +8,15 @@
 #include <QGridLayout>
 #include <cstdlib>
 #include <ctime>
+#include "converter.h"
+#include "clickablelabel.h"
 
 Widget::Widget(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::Widget)
     , originalLayoutWidget(nullptr)
     , encodingLayoutWidget(nullptr)
+    , converterWindow(nullptr)
 {
     ui->setupUi(this);
 
@@ -53,11 +56,25 @@ Widget::Widget(QWidget *parent)
 
     // 设置文本编辑框的提示文本
     ui->textEdit->setPlaceholderText("请输入要转换的文本...");
+
+    connect(ui->goConvertLabel, &ClickableLabel::clicked, this, &Widget::onLinkLabelClicked);
 }
 
 Widget::~Widget()
 {
     delete ui;
+    if (converterWindow) {
+        delete converterWindow;
+    }
+}
+
+void Widget::onLinkLabelClicked()
+{
+    if (!converterWindow) {
+        converterWindow = new Converter(this);
+    }
+    converterWindow->show();
+    this->hide();
 }
 
 void Widget::onConvertButtonClicked()

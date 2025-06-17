@@ -12,6 +12,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
+INCLUDE_DIRECTORIES(
+    ${PROJECT_SOURCE_DIR}
+)
+
 set(PROJECT_SOURCES
         main.cpp
         widget.cpp
@@ -24,6 +28,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
         converter.h converter.cpp converter.ui
+        clickablelabel.h clickablelabel.cpp
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET Coder APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
