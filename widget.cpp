@@ -23,7 +23,7 @@ Widget::Widget(QWidget *parent)
     // 初始化随机数种子
     srand(time(nullptr));
 
-    // 为容器创建网格布局，支持自动换行
+    // 创建网格布局
     originalLayoutWidget = ui->originalTextContainer;
     QGridLayout *originalGridLayout = new QGridLayout(originalLayoutWidget);
     originalGridLayout->setAlignment(Qt::AlignLeft | Qt::AlignTop);
@@ -57,6 +57,7 @@ Widget::Widget(QWidget *parent)
     // 设置文本编辑框的提示文本
     ui->textEdit->setPlaceholderText("请输入要转换的文本...");
 
+    // 连接标签点击事件
     connect(ui->goConvertLabel, &ClickableLabel::clicked, this, &Widget::onLinkLabelClicked);
 }
 
@@ -74,7 +75,7 @@ void Widget::onLinkLabelClicked()
         converterWindow = new Converter(this);
     }
     converterWindow->show();
-    this->hide();
+    // this->hide();
 }
 
 void Widget::onConvertButtonClicked()
@@ -104,11 +105,11 @@ void Widget::onConvertButtonClicked()
     int encodingItemWidth = 90; // 编码值宽度
     int spacing = 4;
 
-    // 估算每行字符数（考虑滚动条等）
+    // 估算每行字符数
     int charsPerRow = std::max(1, (containerWidth - 20) / (itemWidth + spacing));
     int encodingPerRow = std::max(1, (containerWidth - 20) / (encodingItemWidth + spacing));
 
-    // 为每个字符生成 Label 和编码信息
+    // 为每个字符生成Label等信息
     for (int i = 0; i < inputText.length(); ++i) {
         QChar ch = inputText.at(i);
 
@@ -127,25 +128,25 @@ void Widget::onConvertButtonClicked()
                                   .arg(info.utf16Hex)
                                   .arg(info.unicodeHex);
 
-        // 原文显示：创建 Label
+        // 原文显示Label
         QLabel *originalLabel = new QLabel(QString(ch));
         originalLabel->setStyleSheet(QString("background-color: %1; border: 1px solid #ccc; font-size: 14px;").arg(info.color));
         originalLabel->setAlignment(Qt::AlignCenter);
         originalLabel->setFixedSize(35, 35);
-        originalLabel->setToolTip(tooltipText); // 添加工具提示
+        originalLabel->setToolTip(tooltipText); // 悬浮提示
 
         // 计算网格位置
         int originalRow = i / charsPerRow;
         int originalCol = i % charsPerRow;
         originalGridLayout->addWidget(originalLabel, originalRow, originalCol);
 
-        // 编码值显示：创建 Label
+        // 编码值显示Label
         QLabel *encodingLabel = new QLabel(info.utf8Hex);
         encodingLabel->setStyleSheet(QString("background-color: %1; border: 1px solid #ccc; font-size: 14px; font-family: monospace;").arg(info.color));
         encodingLabel->setAlignment(Qt::AlignCenter);
         encodingLabel->setFixedSize(90, 35);
         encodingLabel->setWordWrap(true);
-        encodingLabel->setToolTip(tooltipText); // 添加工具提示
+        encodingLabel->setToolTip(tooltipText); // 悬浮提示
 
         // 计算编码值的网格位置
         int encodingRow = i / encodingPerRow;
@@ -171,7 +172,7 @@ void Widget::clearContainerLayout(QWidget *container)
 
 QString Widget::generateRandomColor()
 {
-    // 生成较亮的颜色，确保文字可读性
+    // 生成背景色，且不会太暗
     int r = 150 + rand() % 106;  // 150-255
     int g = 150 + rand() % 106;  // 150-255
     int b = 150 + rand() % 106;  // 150-255
@@ -183,7 +184,7 @@ QString Widget::charToUtf8Hex(QChar ch)
     QByteArray utf8 = QString(ch).toUtf8();
     QString hex = utf8.toHex().toUpper();
 
-    // 格式化为更易读的形式
+    // 转化为更易读的形式
     QString formatted;
     for (int i = 0; i < hex.length(); i += 2) {
         if (i > 0) formatted += " ";

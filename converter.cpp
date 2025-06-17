@@ -78,8 +78,8 @@ void Converter::convertFile(const QString &inputPath, const QString &encoding)
 
     // 根据目标编码设置源编码
     if (encoding == "UTF-8") {
-        // 如果目标是UTF-8，假设源是GBK
-        in.setEncoding(QStringConverter::System); // Windows下通常是GBK
+        // 如果目标是UTF-8，中国区域 Windows通常是GBK
+        in.setEncoding(QStringConverter::System);
     } else if (encoding == "GBK") {
         // 如果目标是GBK，假设源是UTF-8
         in.setEncoding(QStringConverter::Utf8);

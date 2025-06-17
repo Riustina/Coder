@@ -240,7 +240,7 @@
       </font>
      </property>
      <property name="text">
-      <string>跳转到convert</string>
+      <string>点 我 跳 转 到 编 码 转 化 器 !</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignmentFlag::AlignCenter</set>
